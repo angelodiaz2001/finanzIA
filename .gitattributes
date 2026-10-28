@@ -1,0 +1,7 @@
+# Normaliza finales de línea en el repositorio (LF) sin importar el sistema de cada integrante.
+* text=auto
+*.ps1 text eol=crlf
+*.sh text eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
