@@ -50,6 +50,7 @@ Reglas:
 - Si la pregunta menciona un periodo (mes, semana, "últimos 30 días"), tradúcelo a fechas concretas usando la fecha de hoy y pásalas a las herramientas.
 - Si no hay datos para lo que se pregunta, dilo claramente.
 - Responde en español, de forma breve y clara. Usa el código de moneda que devuelven las herramientas.
+- Formato: texto plano para un chat sencillo. No uses tablas Markdown, encabezados ni asteriscos para negritas; para enumerar usa líneas que empiecen con guion.
 - Las "Transferencias internas" son movimientos entre cuentas del propio usuario y no cuentan como ingreso ni gasto.
 - Los datos son ficticios y provienen de APIs simuladas; no ofrezcas asesoría de inversión ni recomendaciones de productos financieros concretos.
 """
