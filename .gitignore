@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+*.db
+*.sqlite3
+
+# Node / Vite
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# Entorno y secretos (nunca subir claves reales)
+.env
+.env.*
+!.env.example
+
+# MySQL (volumen local de docker-compose)
+mysql_data/
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code (configuración local de permisos)
+.claude/settings.local.json
