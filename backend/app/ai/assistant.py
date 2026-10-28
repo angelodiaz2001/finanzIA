@@ -90,7 +90,7 @@ TOOLS: list[dict[str, Any]] = [
         "strict": True,
         "input_schema": {
             "type": "object",
-            "properties": {"months": {"type": "integer", "minimum": 1, "maximum": 24}},
+            "properties": {"months": {"type": "integer", "description": "Número de meses hacia atrás, entre 1 y 24"}},
             "required": ["months"],
             "additionalProperties": False,
         },
@@ -104,10 +104,10 @@ TOOLS: list[dict[str, Any]] = [
             "properties": {
                 "query": {"type": ["string", "null"], "description": "Texto a buscar en descripción o comercio"},
                 "category": {"type": ["string", "null"]},
-                "type": {"type": ["string", "null"], "enum": ["expense", "income", None]},
+                "type": {"type": ["string", "null"], "description": "expense, income o null para ambos"},
                 "from_date": {"type": ["string", "null"]},
                 "to_date": {"type": ["string", "null"]},
-                "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+                "limit": {"type": "integer", "description": "Máximo de resultados, entre 1 y 50"},
             },
             "required": ["query", "category", "type", "from_date", "to_date", "limit"],
             "additionalProperties": False,
@@ -139,9 +139,10 @@ def execute_tool(db: Session, settings: Settings, name: str, args: dict[str, Any
     elif name == "get_monthly_trend":
         result = analytics.monthly(db, int(args.get("months") or 6))
     elif name == "search_transactions":
+        tx_type = args.get("type") if args.get("type") in ("expense", "income") else None
         result = analytics.search_transactions(
             db, query=args.get("query") or None, category=args.get("category") or None,
-            tx_type=args.get("type") or None, date_from=_parse_date(args.get("from_date")),
+            tx_type=tx_type, date_from=_parse_date(args.get("from_date")),
             date_to=_parse_date(args.get("to_date")), limit=int(args.get("limit") or 20),
         )
     elif name == "list_categories":
