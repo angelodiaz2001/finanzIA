@@ -51,6 +51,7 @@ services/wallet_api/    Billetera digital simulada
 services/notifications_api/  Notificaciones: parser de eventos crudos
 frontend/               React + Vite + Recharts
 docs/api-contracts.md   Contrato de cada API, integración y alcance de la IA
+docs/entorno-de-trabajo.md  Editores, control de versiones y suscripciones de IA del equipo
 scripts/start_all.ps1   Arranca todos los servicios en Windows
 docker-compose.yml      MySQL 8
 ```
@@ -61,6 +62,8 @@ docker-compose.yml      MySQL 8
 - Node.js 18 o superior (probado con 24)
 - Docker Desktop (opcional, solo para MySQL; sin Docker se usa SQLite)
 - Una clave de API de Anthropic (opcional, solo para el asistente de IA)
+
+El detalle del entorno de trabajo del equipo (editores de código, herramienta de control de versiones y suscripciones de modelos de IA) está en [docs/entorno-de-trabajo.md](docs/entorno-de-trabajo.md).
 
 ## Instalación (Windows, PowerShell)
 
