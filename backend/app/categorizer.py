@@ -12,6 +12,7 @@ from typing import Optional
 from .textutil import normalize
 
 INTERNAL_TRANSFERS = "Transferencias internas"
+SENT_TRANSFERS = "Transferencias enviadas"   # envíos a personas (merchant = nombre de la persona)
 DEFAULT_EXPENSE = "Otros gastos"
 DEFAULT_INCOME = "Otros ingresos"
 
@@ -34,7 +35,7 @@ EXPENSE_RULES: list[tuple[str, list[str]]] = [
     ("Hogar y cuidado personal", ["lavanderia", "peluqueria", "barberia", "limpieza", "ferreteria"]),
     ("Compras", ["tienda", "ropa", "zapatillas", "electronica", "compra online", "libreria"]),
     ("Retiros de efectivo", ["retiro", "cajero", "atm "]),
-    ("Transferencias enviadas", ["envio a", "enviaste", "transferencia a", "transferiste"]),
+    (SENT_TRANSFERS, ["envio a", "enviaste", "transferencia a", "transferiste"]),
 ]
 
 INCOME_RULES: list[tuple[str, list[str]]] = [

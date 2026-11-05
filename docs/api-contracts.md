@@ -182,6 +182,7 @@ Transferencias internas (recargas de billetera desde el banco, pago de tarjeta p
 | `GET /api/categories` | Catálogo de categorías |
 | `GET /api/analytics/summary?date_from&date_to` | Ingresos, gastos, neto, transferencias internas, conteos |
 | `GET /api/analytics/by-category?type=expense\|income&date_from&date_to` | Distribución por categoría con participación |
+| `GET /api/analytics/top-merchants?date_from&date_to&limit=5` | Comercios con mayor gasto (`limit` 1–20). Solo `expense` con `merchant`, sin duplicados ni categorías "Transferencias internas" / "Transferencias enviadas" |
 | `GET /api/analytics/monthly?months=6` | Serie mensual de ingresos/gastos/neto |
 | `POST /api/assistant/chat` | `{"message": "...", "conversation_id": null}` → respuesta en lenguaje natural |
 | `DELETE /api/assistant/chat/{conversation_id}` | Reinicia la conversación |
@@ -195,6 +196,13 @@ Reporte de `POST /api/sync`:
  "duplicates_exact": 0, "duplicates_cross": 4, "skipped": 1, "rejected": 0, "errors": [], "warnings": []}
 ```
 `status = partial` cuando alguna fuente no respondió (`errors`; el resto se sincroniza igual); `error` cuando ninguna respondió. Los registros rechazados por validación se listan en `warnings` y no cambian el estado.
+
+Respuesta de `GET /api/analytics/top-merchants` (ordenada de mayor a menor `total`; empates por nombre; `[]` si no hay movimientos):
+```json
+[{"merchant": "Supermercado La Canasta", "total": 150.5, "count": 2, "share": 0.5004},
+ {"merchant": "Farmacia Sim", "total": 120.0, "count": 1, "share": 0.399}]
+```
+`share` (0 a 1, 4 decimales) es la participación sobre el gasto total con comercio del periodo, no solo sobre los comercios devueltos.
 
 Errores: `400` rango de fechas invertido · `404` transacción inexistente · `422` validación.
 

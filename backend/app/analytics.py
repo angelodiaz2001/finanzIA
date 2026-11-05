@@ -13,7 +13,7 @@ from typing import Any, Optional
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from .categorizer import INTERNAL_TRANSFERS
+from .categorizer import INTERNAL_TRANSFERS, SENT_TRANSFERS
 from .models import Account, Transaction
 
 
@@ -86,6 +86,33 @@ def by_category(db: Session, date_from: Optional[date], date_to: Optional[date],
         {"category": c, "type": tx_type, "total": round(t, 2), "count": n,
          "share": round(t / grand_total, 4) if grand_total else 0.0}
         for c, n, t in rows
+    ]
+
+
+def top_merchants(db: Session, date_from: Optional[date], date_to: Optional[date],
+                  limit: int = 5) -> list[dict[str, Any]]:
+    """Comercios con mayor gasto en el periodo, de mayor a menor total.
+
+    Solo cuenta gastos con comercio, no duplicados, y excluye las transferencias
+    internas y los envíos a personas ("Transferencias enviadas"), que no son
+    comercios. La participación (share) se calcula sobre el gasto total con
+    comercio del periodo, no solo sobre los comercios devueltos.
+    """
+    stmt = (
+        select(Transaction.merchant, func.count(Transaction.id), func.coalesce(func.sum(Transaction.amount), 0.0))
+        .where(Transaction.is_duplicate.is_(False), Transaction.type == "expense",
+               Transaction.merchant.is_not(None),
+               Transaction.category.not_in((INTERNAL_TRANSFERS, SENT_TRANSFERS)),
+               *_range_conditions(date_from, date_to))
+        .group_by(Transaction.merchant)
+    )
+    rows = [(m, int(n), float(t or 0)) for m, n, t in db.execute(stmt)]
+    grand_total = sum(t for _, _, t in rows) or 0.0
+    rows.sort(key=lambda r: (-r[2], r[0]))
+    return [
+        {"merchant": m, "total": round(t, 2), "count": n,
+         "share": round(t / grand_total, 4) if grand_total else 0.0}
+        for m, n, t in rows[:limit]
     ]
 
 
