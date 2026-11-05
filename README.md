@@ -1,164 +1,104 @@
-# FinanzIA: Asistente inteligente de finanzas personales
+# FinanzIA · Taller 4: memoria del proyecto, skills y modo plan
 
-Prototipo académico de aplicación web que centraliza movimientos financieros de distintas fuentes (un banco, una billetera digital y notificaciones financieras), los normaliza en una sola base de datos y los presenta con estadísticas y un asistente de IA generativa que explica los hábitos de consumo en lenguaje natural.
+Diplomado en Ingeniería de Software con IA y Sistemas Agénticos · FET · Grupo 6
 
-> **Aviso de alcance.** Las tres APIs de fuentes son **simuladas** y trabajan con datos ficticios. FinanzIA no administra dinero real, no realiza transferencias reales ni accede a cuentas bancarias auténticas. No existen integraciones con entidades financieras reales; esa integración se considera una posible mejora futura.
+**Integrantes:** Elian Danilo Romero Herrera · Angelo David Díaz Cortés · André Ricardo Rodríguez Fernández
 
-## Arquitectura
+**Herramienta:** Claude Code v2.1.318 (Opus 5.5, plan Claude Pro), usado en la terminal de VS Code en Windows con PowerShell
 
-```
-┌─────────────────────┐   ┌─────────────────────┐   ┌──────────────────────────┐
-│  API bancaria (sim) │   │ Billetera digital   │   │ Notificaciones (sim)     │
-│  cuentas, saldos,   │   │ (sim) movimientos,  │   │ recibe eventos crudos y  │
-│  transacciones      │   │ transferencias,     │   │ extrae importe, tipo,    │
-│  :8001              │   │ recargas  :8002     │   │ comercio…  :8003         │
-└──────────┬──────────┘   └──────────┬──────────┘   └────────────┬─────────────┘
-           └──────────────────────────┼─────────────────────────┘
-                                      ▼
-                   ┌──────────────────────────────────────┐
-                   │  Backend principal (Python + FastAPI) │
-                   │  consume → valida → normaliza →       │
-                   │  deduplica → categoriza → persiste    │
-                   │  indicadores (ingresos, gastos, …)    │──── MySQL (docker)
-                   │  asistente IA con tool use  :8000     │     o SQLite local
-                   └──────────────────┬───────────────────┘
-                                      │  /api            ┌──────────────────┐
-                   ┌──────────────────▼───────────────┐   │ Claude (API de   │
-                   │  Frontend (React + Vite)  :5173   │   │ Anthropic)       │
-                   │  panel, historial, gráficos, chat │   │ interpreta datos │
-                   └──────────────────────────────────┘   └──────────────────┘
-```
+**Proyecto:** FinanzIA es un monorepo, con el backend en [`backend/`](backend/) (Python + FastAPI) y el frontend en [`frontend/`](frontend/) (React + Vite). Por eso la memoria y las skills van por carpeta, como si fueran dos repositorios.
 
-Principio de diseño: **los cálculos financieros, las validaciones y la consolidación se hacen con código convencional** en el backend. La IA solo interpreta y explica información ya procesada: el modelo obtiene las cifras mediante herramientas que consultan la base de datos, lo que reduce el riesgo de montos inventados.
+## De qué trata el taller
 
-### Estructura del repositorio
+Un agente de código empieza cada sesión sin saber nada del proyecto. En este taller dejamos funcionando en FinanzIA las tres piezas que lo cambian: la memoria que lee al iniciar, las skills que carga cuando las necesita y un plan que revisamos antes de que toque el código. Con eso implementamos dos solicitudes de principio a fin, cada una en su rama y con su pull request fusionado en `main`.
 
-```
-backend/app/            Backend principal (FastAPI)
-  config.py             Configuración por variables de entorno / .env
-  database.py, models.py  SQLAlchemy (MySQL o SQLite)
-  normalizer.py         Validación y transformación a la estructura común
-  dedup.py              Detección de duplicados exactos y entre fuentes
-  categorizer.py        Categorización por reglas
-  analytics.py          Indicadores: ingresos, gastos, neto, por categoría, mensual
-  sync_service.py       Orquestación de la sincronización
-  clients/              Clientes HTTP de las tres fuentes
-  ai/assistant.py       Asistente (Claude + tool use) y sugerencia de categoría
-  routers/              Endpoints REST
-backend/tests/          Pruebas (pytest)
-services/bank_api/      API bancaria simulada
-services/wallet_api/    Billetera digital simulada
-services/notifications_api/  Notificaciones: parser de eventos crudos
-frontend/               React + Vite + Recharts
-docs/api-contracts.md   Contrato de cada API, integración y alcance de la IA
-docs/entorno-de-trabajo.md  Editores, control de versiones y suscripciones de IA del equipo
-scripts/start_all.ps1   Arranca todos los servicios en Windows
-docker-compose.yml      MySQL 8
-```
+| Parte | Qué quedó en `main` | Pull request |
+|---|---|---|
+| 1. Memoria del proyecto | `CLAUDE.md` en la raíz, en `backend/` y en `frontend/` | [#1](https://github.com/angelodiaz2001/finanzIA/pull/1) |
+| 2. Skills | `finanzia-nuevo-endpoint` en el backend y `vercel-react-best-practices` en el frontend | [#1](https://github.com/angelodiaz2001/finanzIA/pull/1) |
+| 3. Solicitud 1 | Endpoint `GET /api/analytics/top-merchants` | [#2](https://github.com/angelodiaz2001/finanzIA/pull/2) |
+| 3. Solicitud 2 | Tarjeta "Comercios donde más gastas" en el Panel | [#3](https://github.com/angelodiaz2001/finanzIA/pull/3) |
 
-## Requisitos
+## 1. Memoria del proyecto
 
-- Python 3.11 o superior (probado con 3.13)
-- Node.js 18 o superior (probado con 24)
-- Docker Desktop (opcional, solo para MySQL; sin Docker se usa SQLite)
-- Una clave de API de Anthropic (opcional, solo para el asistente de IA)
+Trabajamos solo con Claude Code, así que escogimos `CLAUDE.md`, que es el archivo propio de esa herramienta. Como es un monorepo hicimos tres: Claude Code carga el de la raíz al iniciar y el de cada carpeta cuando trabaja con sus archivos.
 
-El detalle del entorno de trabajo del equipo (editores de código, herramienta de control de versiones y suscripciones de modelos de IA) está en [docs/entorno-de-trabajo.md](docs/entorno-de-trabajo.md).
+| Archivo | Qué tiene |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | Mapa del repo, comandos en PowerShell, flujo de Git (ramas `feat/`, `fix/`, `chore/` y `docs/`, commits en español, todo por PR) y lo que el agente no debe tocar: el `.env`, los puertos de `docker-compose.yml` y las dependencias nuevas sin avisar |
+| [`backend/CLAUDE.md`](backend/CLAUDE.md) | Capas permitidas (router, analytics y schemas), reglas de negocio de todo indicador, que no hay migraciones, que el `.venv` está en la raíz y cómo probar con los fixtures de pytest |
+| [`frontend/CLAUDE.md`](frontend/CLAUDE.md) | JavaScript sin TypeScript, `api.js` como único cliente HTTP, colores solo con variables CSS por el modo oscuro y `npm run build` como verificación |
 
-## Instalación (Windows, PowerShell)
+No dejamos el borrador de `/init`: los escribimos a partir del código y dejamos solo lo que el agente no deduciría leyendo los archivos.
+
+## 2. Skills
+
+| Skill | Dónde está | Origen | Revisión de seguridad |
+|---|---|---|---|
+| [`finanzia-nuevo-endpoint`](backend/.claude/skills/finanzia-nuevo-endpoint/SKILL.md) | `backend/.claude/skills/` | La creamos nosotros | Solo instrucciones en Markdown, sin scripts |
+| [`vercel-react-best-practices`](frontend/.claude/skills/vercel-react-best-practices/SKILL.md) | `frontend/.claude/skills/` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices) | 70 reglas en Markdown, sin scripts; no descarga archivos ni envía datos, y su SKILL.md declara licencia MIT |
+
+Se invocan con `/nombre-de-la-skill`, o el agente las carga solo cuando la tarea coincide con su descripción. De Vercel descartamos `web-design-guidelines`, porque descarga sus reglas de una URL en cada uso y no se puede revisar una sola vez.
+
+## 3. Solicitudes con modo plan
+
+Las dos siguieron el mismo camino:
+
+1. Rama `feat/...` creada desde `main`.
+2. Prompt con la fórmula base (qué quiero, para quién, contexto, formato, criterios de aceptación y restricciones) en modo plan.
+3. Revisión del plan: archivos que toca, arquitectura y pruebas. Las correcciones se las pedimos al agente, sin editar el plan a mano.
+4. Plan final guardado tal cual (`plan-1-grupo6.md` y `plan-2-grupo6.md`, entregados aparte).
+5. Implementación, revisión del diff contra el plan, pull request y merge.
+
+El paso a paso completo, con 36 capturas de la sesión, está en la [bitácora de evidencias](docs/Bitacora_Taller4_Grupo6.pdf).
+
+### Solicitud 1 · Comercios con mayor gasto (backend)
+
+*Como usuario de FinanzIA, quiero saber en qué comercios gasto más dinero en un periodo, para identificar dónde puedo recortar gastos.*
+
+`GET /api/analytics/top-merchants?date_from=&date_to=&limit=` devuelve los comercios ordenados por total, con `merchant`, `total`, `count` y `share`, sin contar duplicados ni transferencias internas. Al revisar el plan vimos que los envíos de dinero a personas se guardan con el nombre de la persona como comercio, así que le pedimos al agente excluir también la categoría "Transferencias enviadas" y agregar una prueba para eso. Quedaron 9 pruebas nuevas en `backend/tests/test_top_merchants.py` y la suite pasó de 24 a 33 pruebas en verde. PR [#2](https://github.com/angelodiaz2001/finanzIA/pull/2).
+
+### Solicitud 2 · Tarjeta "Comercios donde más gastas" (frontend)
+
+*Como usuario de FinanzIA, quiero ver en el Panel los 5 comercios donde más gasto en el periodo seleccionado, para entender mis hábitos de consumo de un vistazo.*
+
+La tarjeta muestra la posición, el nombre, el número de compras, el monto y una barra proporcional a su participación, y se actualiza al cambiar el periodo o al sincronizar. El primer intento corrió en auto mode y no en modo plan, así que lo descartamos y lo repetimos en modo plan. El cambio toca 4 archivos (`api.js`, `TopMerchants.jsx`, `Dashboard.jsx` y `styles.css`), no agrega dependencias y compila con `npm run build`. PR [#3](https://github.com/angelodiaz2001/finanzIA/pull/3).
+
+## El proyecto FinanzIA
+
+Prototipo académico de finanzas personales. Junta en una sola base de datos los movimientos de tres APIs **simuladas** (banco, billetera digital y notificaciones), calcula los indicadores con código convencional y los muestra en un panel web con un asistente de IA que los explica. Todo funciona con datos ficticios: no maneja dinero real ni se conecta con entidades financieras. El contrato de cada API está en [`docs/api-contracts.md`](docs/api-contracts.md) y el entorno del equipo en [`docs/entorno-de-trabajo.md`](docs/entorno-de-trabajo.md).
+
+### Cómo ejecutarlo (Windows, PowerShell, desde la raíz)
 
 ```powershell
-# 1. Entorno Python con todas las dependencias (backend + servicios simulados)
+# entorno de Python y dependencias
 py -3.13 -m venv .venv
 .venv\Scripts\python -m pip install -r backend\requirements.txt -r services\requirements.txt
+cd frontend; npm install; cd ..
 
-# 2. Dependencias del frontend
-cd frontend
-npm install
-cd ..
-
-# 3. Configuración (opcional). Sin .env el backend usa SQLite y la IA queda desactivada.
-copy .env.example .env
-```
-
-En Linux/macOS los comandos equivalentes son `python3 -m venv .venv`, `.venv/bin/python -m pip install ...` y `cp .env.example .env`.
-
-### Base de datos MySQL (opcional)
-
-```powershell
-docker compose up -d        # levanta MySQL 8 con la base finanzia (usuario finanzia / finanzia)
-```
-
-El archivo `.env.example` ya apunta a esa instancia (`DATABASE_URL=mysql+pymysql://finanzia:finanzia@localhost:3306/finanzia`). Las tablas se crean automáticamente al arrancar el backend. Si prefieres no usar Docker, elimina la línea `DATABASE_URL` del `.env` y se usará `finanzia.db` (SQLite) en la raíz del proyecto.
-
-### Asistente de IA (opcional)
-
-Edita `.env` y define `ANTHROPIC_API_KEY`. El modelo por defecto es `claude-opus-5-5` (`ANTHROPIC_MODEL`). Sin clave, el resto de la aplicación funciona y el asistente indica que no está configurado.
-
-## Ejecución
-
-Opción rápida (abre una ventana por servicio):
-
-```powershell
+# levantar todo (una ventana por servicio)
 powershell -ExecutionPolicy Bypass -File scripts\start_all.ps1
-```
 
-Opción manual, desde la raíz del repositorio, cada comando en su propia terminal:
+# pruebas del backend y de los servicios simulados
+.venv\Scripts\python -m pytest
 
-```powershell
-.venv\Scripts\python -m uvicorn services.bank_api.main:app --port 8001 --reload
-.venv\Scripts\python -m uvicorn services.wallet_api.main:app --port 8002 --reload
-.venv\Scripts\python -m uvicorn services.notifications_api.main:app --port 8003 --reload
-.venv\Scripts\python -m uvicorn backend.app.main:app --port 8000 --reload
-cd frontend; npm run dev
+# verificación del frontend
+cd frontend; npm run build; cd ..
 ```
 
 | Componente | URL |
 |---|---|
 | Interfaz web | http://localhost:5173 |
 | Backend (Swagger) | http://localhost:8000/docs |
-| API bancaria | http://localhost:8001/docs |
-| Billetera digital | http://localhost:8002/docs |
-| Notificaciones | http://localhost:8003/docs |
+| Banco, billetera y notificaciones | http://localhost:8001/docs · http://localhost:8002/docs · http://localhost:8003/docs |
 
-Flujo de demostración:
+Abre la interfaz y pulsa **Sincronizar fuentes** para cargar los movimientos. Sin archivo `.env` el backend usa SQLite y el asistente de IA queda desactivado; para MySQL y la clave de Anthropic mira `.env.example`.
 
-1. Abre la interfaz y pulsa **Sincronizar fuentes**. El backend consume las tres APIs, normaliza los movimientos, detecta duplicados (p. ej. una compra que aparece en el banco y en un SMS) y los guarda.
-2. El **Panel** muestra ingresos, gastos, balance neto, distribución por categorías y la serie mensual.
-3. **Transacciones** permite filtrar el historial, corregir categorías manualmente y pedir una sugerencia de categoría.
-4. **Asistente IA** responde preguntas como "¿en qué categoría gasté más en los últimos 30 días?" y muestra qué datos consultó.
-
-Para probar la tercera API con un evento propio:
-
-```bash
-curl -X POST http://localhost:8003/events -H "Content-Type: application/json" -d "{\"channel\":\"SMS\",\"sender\":\"BancoSim\",\"raw_text\":\"Compra aprobada por S/ 72.40 en LIBRERIA CENTRAL ****4321\"}"
-```
-
-y vuelve a sincronizar.
-
-## Pruebas
+Para usar MySQL en lugar de SQLite (opcional, requiere Docker Desktop):
 
 ```powershell
-.venv\Scripts\python -m pytest
-```
-
-Cubren la normalización de cada fuente, el rechazo de datos inválidos, la detección de duplicados, las reglas de categorización, el parser de notificaciones y los endpoints del backend con fuentes simuladas en memoria.
-
-## Decisiones de integración
-
-- **Quién consume las APIs:** únicamente el backend principal (`sync_service.py`), de forma explícita mediante `POST /api/sync`.
-- **Quién normaliza:** `normalizer.py` convierte cada fuente a la estructura común documentada en `docs/api-contracts.md`; los registros inválidos se rechazan y se reportan.
-- **Cómo se almacena:** tabla `transactions` con restricción única `(source, external_id)`, carga original en JSON y marcas de duplicado; `accounts` con saldos; `sync_runs` con el reporte de cada ejecución.
-- **Duplicados:** exactos por identificador y entre fuentes por importe, tipo, ventana de tiempo y similitud de texto. Las fuentes primarias (banco, billetera) prevalecen sobre las notificaciones.
-- **Transferencias internas** (recargas de la billetera desde el banco, pago de la tarjeta propia) no se cuentan como ingreso ni gasto.
-- **Alcance de la IA:** asistente conversacional con herramientas y sugerencia de categoría con salida estructurada. Mejoras futuras: categorización masiva automática, detección de anomalías, metas de ahorro persistentes.
-
-## Trabajo con Git
-
-El repositorio tiene configurada a nivel local la identidad del perfil educativo (`git config user.name` / `user.email` con el correo *noreply* de GitHub), de modo que los commits realizados desde esta carpeta se atribuyen a esa cuenta sin depender de la configuración global de la máquina. Comprueba la identidad activa con:
-
-```bash
-git config user.name && git config user.email
+docker compose up -d        # MySQL 8 con la base finanzia (usuario finanzia / finanzia)
+copy .env.example .env      # ya apunta a esa instancia; aquí también va ANTHROPIC_API_KEY
 ```
 
 ## Licencia y uso
