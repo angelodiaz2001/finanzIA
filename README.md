@@ -50,6 +50,8 @@ Las dos siguieron el mismo camino:
 4. Plan final guardado tal cual (`plan-1-grupo6.md` y `plan-2-grupo6.md`, entregados aparte).
 5. Implementación, revisión del diff contra el plan, pull request y merge.
 
+El paso a paso completo, con 36 capturas de la sesión, está en la [bitácora de evidencias](docs/Bitacora_Taller4_Grupo6.pdf).
+
 ### Solicitud 1 · Comercios con mayor gasto (backend)
 
 *Como usuario de FinanzIA, quiero saber en qué comercios gasto más dinero en un periodo, para identificar dónde puedo recortar gastos.*
@@ -91,6 +93,13 @@ cd frontend; npm run build; cd ..
 | Banco, billetera y notificaciones | http://localhost:8001/docs · http://localhost:8002/docs · http://localhost:8003/docs |
 
 Abre la interfaz y pulsa **Sincronizar fuentes** para cargar los movimientos. Sin archivo `.env` el backend usa SQLite y el asistente de IA queda desactivado; para MySQL y la clave de Anthropic mira `.env.example`.
+
+Para usar MySQL en lugar de SQLite (opcional, requiere Docker Desktop):
+
+```powershell
+docker compose up -d        # MySQL 8 con la base finanzia (usuario finanzia / finanzia)
+copy .env.example .env      # ya apunta a esa instancia; aquí también va ANTHROPIC_API_KEY
+```
 
 ## Licencia y uso
 
