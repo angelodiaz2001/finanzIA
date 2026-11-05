@@ -2,25 +2,34 @@ import { useEffect, useState } from "react";
 import { api, formatMoney, SOURCE_LABELS } from "../api.js";
 import CategoryBars from "./CategoryBars.jsx";
 import MonthlyChart from "./MonthlyChart.jsx";
+import TopMerchants from "./TopMerchants.jsx";
 
 export default function Dashboard({ range, version }) {
   const [summary, setSummary] = useState(null);
   const [categories, setCategories] = useState([]);
   const [monthly, setMonthly] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [merchants, setMerchants] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    Promise.all([api.summary(range), api.byCategory({ ...range, type: "expense" }), api.monthly(6), api.accounts()])
-      .then(([s, c, m, a]) => {
+    Promise.all([
+      api.summary(range),
+      api.byCategory({ ...range, type: "expense" }),
+      api.monthly(6),
+      api.accounts(),
+      api.topMerchants({ ...range, limit: 5 }),
+    ])
+      .then(([s, c, m, a, t]) => {
         if (cancelled) return;
         setSummary(s);
         setCategories(c);
         setMonthly(m);
         setAccounts(a);
+        setMerchants(t);
         setError("");
       })
       .catch((e) => !cancelled && setError(`No se pudieron cargar los indicadores: ${e.message}`))
@@ -30,7 +39,12 @@ export default function Dashboard({ range, version }) {
     };
   }, [range, version]);
 
-  if (error) return <div className="notice error">{error}</div>;
+  if (error)
+    return (
+      <div className="notice error" role="alert">
+        {error}
+      </div>
+    );
   const currency = summary?.currency ?? "PEN";
   const empty = summary && summary.count === 0;
 
@@ -81,6 +95,10 @@ export default function Dashboard({ range, version }) {
           <p className="small">Últimos 6 meses, excluyendo transferencias internas y duplicados.</p>
           <MonthlyChart data={monthly} currency={currency} />
         </section>
+      </div>
+
+      <div className="grid-2">
+        <TopMerchants data={merchants} currency={currency} />
       </div>
 
       <div className="grid-2">

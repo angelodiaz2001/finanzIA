@@ -358,6 +358,36 @@ h2 {
   color: var(--text);
 }
 
+.merchant-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.merchant-row {
+  display: grid;
+  grid-template-columns: 1.5em 1fr auto;
+  gap: 2px 8px;
+  align-items: baseline;
+}
+.merchant-rank {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.merchant-bar {
+  grid-column: 2 / -1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.merchant-bar-fill {
+  height: 100%;
+  background: var(--series-2);
+  border-radius: 4px;
+}
+
 .pill {
   display: inline-block;
   font-size: 0.75rem;
