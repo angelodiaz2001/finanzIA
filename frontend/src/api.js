@@ -30,6 +30,7 @@ export const api = {
   sync: () => request("/sync", { method: "POST" }),
   summary: (params) => request("/analytics/summary" + qs(params)),
   byCategory: (params) => request("/analytics/by-category" + qs(params)),
+  topMerchants: (params) => request("/analytics/top-merchants" + qs(params)),
   monthly: (months) => request("/analytics/monthly" + qs({ months })),
   transactions: (params) => request("/transactions" + qs(params)),
   updateCategory: (id, category) =>
