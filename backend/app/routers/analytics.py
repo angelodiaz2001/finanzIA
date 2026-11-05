@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from .. import analytics
 from ..config import Settings, get_settings
 from ..database import get_db
-from ..schemas import CategoryShare, MonthPoint, Summary
+from ..schemas import CategoryShare, MerchantTotal, MonthPoint, Summary
 
 router = APIRouter(prefix="/analytics", tags=["indicadores"])
 
@@ -32,6 +32,14 @@ def by_category(date_from: Optional[date] = None, date_to: Optional[date] = None
                 db: Session = Depends(get_db)) -> list[CategoryShare]:
     _check_range(date_from, date_to)
     return [CategoryShare(**row) for row in analytics.by_category(db, date_from, date_to, type)]
+
+
+@router.get("/top-merchants", response_model=list[MerchantTotal])
+def top_merchants(date_from: Optional[date] = None, date_to: Optional[date] = None,
+                  limit: int = Query(5, ge=1, le=20),
+                  db: Session = Depends(get_db)) -> list[MerchantTotal]:
+    _check_range(date_from, date_to)
+    return [MerchantTotal(**row) for row in analytics.top_merchants(db, date_from, date_to, limit)]
 
 
 @router.get("/monthly", response_model=list[MonthPoint])

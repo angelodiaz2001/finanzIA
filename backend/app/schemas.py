@@ -116,6 +116,13 @@ class CategoryShare(BaseModel):
     share: float
 
 
+class MerchantTotal(BaseModel):
+    merchant: str
+    total: float
+    count: int
+    share: float = Field(description="Participación sobre el gasto total con comercio del periodo (0 a 1)")
+
+
 class MonthPoint(BaseModel):
     month: str
     income: float
