@@ -175,7 +175,8 @@ Transferencias internas (recargas de billetera desde el banco, pago de tarjeta p
 | `GET /api/health` | Estado de BD, de las tres fuentes y de la IA |
 | `POST /api/sync` | Ejecuta la sincronización completa y devuelve el reporte |
 | `GET /api/sync/runs?limit=20` | Historial de sincronizaciones |
-| `GET /api/transactions` | Historial paginado. Filtros: `source`, `type`, `category`, `q`, `date_from`, `date_to`, `include_duplicates`, `page`, `page_size` |
+| `GET /api/transactions` | Historial paginado con `filtered_income` y `filtered_expenses`. Filtros: `source`, `type`, `category`, `q`, `date_from`, `date_to`, `include_duplicates`, `page`, `page_size` |
+| `GET /api/transactions/export` | Descarga CSV UTF-8 con BOM de todas las transacciones que cumplen los mismos filtros |
 | `GET /api/transactions/{id}` | Detalle incluyendo `raw` |
 | `PATCH /api/transactions/{id}/category` | Corrección manual `{"category": "..."}` |
 | `GET /api/accounts` | Cuentas y saldos consolidados |

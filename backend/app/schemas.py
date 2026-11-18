@@ -51,6 +51,8 @@ class TransactionPage(BaseModel):
     total: int
     page: int
     page_size: int
+    filtered_income: float = 0.0
+    filtered_expenses: float = 0.0
 
 
 class CategoryUpdate(BaseModel):
