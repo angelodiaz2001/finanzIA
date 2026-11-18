@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "./api.js";
 import Dashboard from "./components/Dashboard.jsx";
+import BudgetsView from "./components/BudgetsView.jsx";
 import TransactionsTable from "./components/TransactionsTable.jsx";
 import Assistant from "./components/Assistant.jsx";
 
 const TABS = [
   { id: "panel", label: "Panel" },
+  { id: "budgets", label: "Presupuestos" },
   { id: "transactions", label: "Transacciones" },
   { id: "assistant", label: "Asistente IA" },
 ];
@@ -141,7 +143,7 @@ export default function App() {
         ))}
       </nav>
 
-      {tab !== "assistant" && (
+      {tab !== "assistant" && tab !== "budgets" && (
         <div className="filter-row" aria-label="Periodo">
           <span className="filter-label">Periodo</span>
           {PRESETS.map((p) => (
@@ -159,6 +161,7 @@ export default function App() {
 
       <main>
         {tab === "panel" && <Dashboard range={range} version={version} />}
+        {tab === "budgets" && <BudgetsView version={version} />}
         {tab === "transactions" && <TransactionsTable range={range} version={version} />}
         {tab === "assistant" && <Assistant aiConfigured={health?.ai_configured} />}
       </main>

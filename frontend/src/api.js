@@ -37,6 +37,9 @@ export const api = {
     request(`/transactions/${id}/category`, { method: "PATCH", body: JSON.stringify({ category }) }),
   categories: () => request("/categories"),
   accounts: () => request("/accounts"),
+  budgets: (month) => request("/budgets" + qs({ month })),
+  saveBudget: (payload) => request("/budgets", { method: "PUT", body: JSON.stringify(payload) }),
+  deleteBudget: (id) => request(`/budgets/${id}`, { method: "DELETE" }),
   chat: (message, conversationId) =>
     request("/assistant/chat", {
       method: "POST",
