@@ -31,10 +31,15 @@ Sigue estos pasos en orden. No te saltes las pruebas ni la documentación.
 En `backend/tests/` (usa el fixture `client` de `conftest.py` y datos insertados con `db_session` o una sincronización con fuentes falsas como en `test_api.py`):
 
 1. Caso feliz con valores esperados exactos.
-2. Que los duplicados y las transferencias internas **no** se cuenten.
-3. Un error de validación (400 o 422).
+2. Que los duplicados, las transferencias internas (`INTERNAL_TRANSFERS`) y, si analiza comercios o gastos de consumo, los envíos a personas (`SENT_TRANSFERS`) **no** se cuenten.
+3. Un error de validación (400 o 422) y el caso de periodo vacío.
 
-Ejecuta: `.venv\Scripts\python -m pytest` desde la raíz. Todo en verde antes de terminar.
+Ejecuta desde la raíz:
+```powershell
+.venv\Scripts\ruff check backend services
+.venv\Scripts\python -m pytest --cov=backend.app --cov-fail-under=80
+```
+Todo en verde antes de terminar.
 
 ## 5. Documentación y cierre
 

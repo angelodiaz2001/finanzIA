@@ -10,4 +10,18 @@ export default defineConfig({
       "/api": { target: "http://127.0.0.1:8000", changeOrigin: true },
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: "./src/setupTests.js",
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json-summary"],
+      include: ["src/**/*.{js,jsx}"],
+      exclude: ["src/main.jsx", "src/setupTests.js", "src/__tests__/**"],
+      thresholds: {
+        lines: 80,
+      },
+    },
+  },
 });
