@@ -20,7 +20,7 @@ from .ai import assistant
 from .clients import ping
 from .config import Settings, get_settings
 from .database import get_db, init_db
-from .routers import analytics, assistant as assistant_router, catalog, sync, transactions
+from .routers import analytics, assistant as assistant_router, budgets, catalog, sync, transactions
 from .schemas import HealthOut
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -56,6 +56,7 @@ app.include_router(sync.router, prefix=API_PREFIX)
 app.include_router(transactions.router, prefix=API_PREFIX)
 app.include_router(analytics.router, prefix=API_PREFIX)
 app.include_router(catalog.router, prefix=API_PREFIX)
+app.include_router(budgets.router, prefix=API_PREFIX)
 app.include_router(assistant_router.router, prefix=API_PREFIX)
 
 

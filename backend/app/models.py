@@ -66,3 +66,17 @@ class SyncRun(Base):
     finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="running")   # running | ok | partial | error
     report: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
+
+
+class CategoryBudget(Base):
+    """Presupuesto mensual máximo definido por el usuario para una categoría de gasto."""
+
+    __tablename__ = "category_budgets"
+    __table_args__ = (UniqueConstraint("month", "category", name="uq_budgets_month_category"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    month: Mapped[str] = mapped_column(String(7), index=True)            # YYYY-MM
+    category: Mapped[str] = mapped_column(String(60))
+    limit_amount: Mapped[float] = mapped_column(Numeric(14, 2, asdecimal=False))
+    currency: Mapped[str] = mapped_column(String(3), default="PEN")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_now, onupdate=_now)

@@ -22,7 +22,7 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from .. import analytics
+from .. import analytics, budgets_service
 from ..categorizer import ALL_CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES, categorize
 from ..config import Settings
 from ..schemas import CategorizeResponse, ChatResponse, ToolCall
@@ -120,6 +120,19 @@ TOOLS: list[dict[str, Any]] = [
         "strict": True,
         "input_schema": {"type": "object", "properties": {}, "required": [], "additionalProperties": False},
     },
+    {
+        "name": "get_budgets_status",
+        "description": "Consulta los presupuestos mensuales configurados por categoría de gasto para un mes YYYY-MM, con monto presupuestado, gastado, saldo restante y estado (ok, warning, exceeded).",
+        "strict": True,
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "month": {"type": ["string", "null"], "description": "Mes objetivo en formato YYYY-MM o null para el mes actual"},
+            },
+            "required": ["month"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -149,6 +162,8 @@ def execute_tool(db: Session, settings: Settings, name: str, args: dict[str, Any
     elif name == "list_categories":
         result = {"expense_categories": EXPENSE_CATEGORIES, "income_categories": INCOME_CATEGORIES,
                   "accounts": analytics.balances(db)}
+    elif name == "get_budgets_status":
+        result = budgets_service.list_budgets_status(db, args.get("month"), settings.default_currency)
     else:
         raise ValueError(f"herramienta desconocida: {name}")
     return json.dumps(result, ensure_ascii=False, default=str)

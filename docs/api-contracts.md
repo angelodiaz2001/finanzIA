@@ -184,6 +184,9 @@ Transferencias internas (recargas de billetera desde el banco, pago de tarjeta p
 | `GET /api/analytics/by-category?type=expense\|income&date_from&date_to` | Distribución por categoría con participación |
 | `GET /api/analytics/top-merchants?date_from&date_to&limit=5` | Comercios con mayor gasto (`limit` 1–20). Solo `expense` con `merchant`, sin duplicados ni categorías "Transferencias internas" / "Transferencias enviadas" |
 | `GET /api/analytics/monthly?months=6` | Serie mensual de ingresos/gastos/neto |
+| `GET /api/budgets?month=YYYY-MM` | Resumen mensual de presupuestos por categoría de gasto (`total_budgeted`, `total_spent` e `items` ordenados por `usage_ratio`) |
+| `PUT /api/budgets` | Crea o actualiza un presupuesto mensual (`{"month": "2026-10", "category": "Alimentación", "limit_amount": 500.0}`) |
+| `DELETE /api/budgets/{budget_id}` | Elimina un presupuesto mensual (`204` o `404`) |
 | `POST /api/assistant/chat` | `{"message": "...", "conversation_id": null}` → respuesta en lenguaje natural |
 | `DELETE /api/assistant/chat/{conversation_id}` | Reinicia la conversación |
 | `POST /api/assistant/categorize` | `{"transaction_id": 1, "apply": false}` o `{"description": "...", "type": "expense"}` → categoría sugerida |
@@ -204,7 +207,14 @@ Respuesta de `GET /api/analytics/top-merchants` (ordenada de mayor a menor `tota
 ```
 `share` (0 a 1, 4 decimales) es la participación sobre el gasto total con comercio del periodo, no solo sobre los comercios devueltos.
 
-Errores: `400` rango de fechas invertido · `404` transacción inexistente · `422` validación.
+Respuesta de `GET /api/budgets?month=2026-10` (excluye duplicados, `Transferencias internas` y `Transferencias enviadas`; `status`: `ok | warning | exceeded`):
+```json
+{"month": "2026-10", "currency": "PEN", "total_budgeted": 800.0, "total_spent": 615.0,
+ "items": [{"id": 1, "month": "2026-10", "category": "Alimentación", "limit_amount": 500.0,
+            "spent": 425.0, "remaining": 75.0, "usage_ratio": 0.85, "status": "warning", "currency": "PEN"}]}
+```
+
+Errores: `400` rango de fechas invertido, mes inválido o categoría no presupuestable · `404` recurso inexistente · `422` validación.
 
 ---
 

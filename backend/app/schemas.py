@@ -169,3 +169,32 @@ class HealthOut(BaseModel):
     database: str
     sources: dict[str, str]
     ai_configured: bool
+
+
+BudgetStatusLiteral = Literal["ok", "warning", "exceeded"]
+
+
+class BudgetUpsert(BaseModel):
+    month: str = Field(min_length=1, max_length=20, description="Mes objetivo en formato YYYY-MM")
+    category: str = Field(min_length=2, max_length=60)
+    limit_amount: float = Field(gt=0, le=10_000_000)
+
+
+class BudgetStatusOut(BaseModel):
+    id: int
+    month: str
+    category: str
+    limit_amount: float
+    spent: float
+    remaining: float
+    usage_ratio: float
+    status: BudgetStatusLiteral
+    currency: str
+
+
+class BudgetMonthSummary(BaseModel):
+    month: str
+    currency: str
+    total_budgeted: float
+    total_spent: float
+    items: list[BudgetStatusOut]
