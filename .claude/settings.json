@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Edit(./.env)",
+      "Edit(./.env.*)",
+      "Write(./.env)",
+      "Write(./.env.*)",
+      "Edit(./docker-compose.yml)",
+      "Write(./docker-compose.yml)",
+      "Edit(./services/**)",
+      "Write(./services/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/guard_agent_paths.py"
+          }
+        ]
+      }
+    ]
+  }
+}

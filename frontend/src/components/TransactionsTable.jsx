@@ -121,7 +121,11 @@ export default function TransactionsTable({ range, version }) {
         </div>
       </div>
 
-      {error && <div className="notice error">{error}</div>}
+      {error && (
+        <div className="notice error" role="alert">
+          {error}
+        </div>
+      )}
       {hint && (
         <div className="notice" role="status">
           {hint}

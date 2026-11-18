@@ -6,6 +6,10 @@ __pycache__/
 venv/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 *.db
 *.sqlite3
 
@@ -13,6 +17,7 @@ venv/
 node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/coverage/
 npm-debug.log*
 
 # Entorno y secretos (nunca subir claves reales)

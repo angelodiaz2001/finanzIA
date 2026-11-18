@@ -1,0 +1,74 @@
+name: Calidad FinanzIA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  calidad-backend:
+    name: Backend (ruff + pytest + arquitectura + cobertura >= 80%)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: |
+            backend/requirements.txt
+            services/requirements.txt
+      - name: Instalar dependencias Python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt -r services/requirements.txt
+      - name: Linter Python (ruff)
+        run: ruff check backend services
+      - name: Pruebas, integridad arquitectónica y cobertura (>= 80%)
+        run: python -m pytest --cov=backend.app --cov-report=term-missing --cov-fail-under=80
+
+  calidad-frontend:
+    name: Frontend (eslint + jsx-a11y + guardias + vitest >= 80% + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Instalar dependencias npm
+        run: npm ci
+      - name: Linter, accesibilidad y guardias estáticas
+        run: npm run lint
+      - name: Pruebas de comportamiento y cobertura (>= 80%)
+        run: npm run test:coverage
+      - name: Compilación de producción (Vite)
+        run: npm run build
+
+  mutacion-backend:
+    name: Mutación AST del dominio financiero (informativo)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: |
+            backend/requirements.txt
+            services/requirements.txt
+      - name: Instalar dependencias Python
+        run: python -m pip install -r backend/requirements.txt -r services/requirements.txt
+      - name: Ejecutar muestreo de mutación AST
+        run: python scripts/run_mutation_check.py --per-file 5
+      - name: Publicar informe de mutación
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-mutacion-backend
+          path: docs/evidencias/reporte-mutacion-backend.json
