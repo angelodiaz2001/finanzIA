@@ -31,6 +31,8 @@ export const api = {
   summary: (params) => request("/analytics/summary" + qs(params)),
   byCategory: (params) => request("/analytics/by-category" + qs(params)),
   topMerchants: (params) => request("/analytics/top-merchants" + qs(params)),
+  anomalies: (params) => request("/analytics/anomalies" + qs(params)),
+  recurring: (limit = 5) => request("/analytics/recurring" + qs({ limit })),
   monthly: (months) => request("/analytics/monthly" + qs({ months })),
   transactions: (params) => request("/transactions" + qs(params)),
   exportTransactionsUrl: (params) => BASE + "/transactions/export" + qs(params),

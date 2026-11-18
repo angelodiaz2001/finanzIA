@@ -16,6 +16,8 @@ vi.mock("../api.js", async (importOriginal) => {
       monthly: vi.fn(),
       accounts: vi.fn(),
       topMerchants: vi.fn(),
+      anomalies: vi.fn(),
+      recurring: vi.fn(),
       transactions: vi.fn(),
       categories: vi.fn(),
       updateCategory: vi.fn(),
@@ -57,6 +59,18 @@ describe("App y Dashboard", () => {
     ]);
     api.topMerchants.mockResolvedValue([
       { merchant: "Supermercado La Canasta", total: 450, count: 3, share: 0.6 },
+    ]);
+    api.anomalies.mockResolvedValue([]);
+    api.recurring.mockResolvedValue([
+      {
+        merchant: "Streaming Sim",
+        category: "Entretenimiento",
+        months_active: 3,
+        occurrences: 3,
+        average_amount: 39.9,
+        total_amount: 119.7,
+        last_charged_at: "2026-10-15",
+      },
     ]);
   });
 
