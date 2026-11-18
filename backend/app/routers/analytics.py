@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from .. import analytics
 from ..config import Settings, get_settings
 from ..database import get_db
-from ..schemas import CategoryShare, MerchantTotal, MonthPoint, Summary
+from ..schemas import CategoryShare, MerchantTotal, MonthPoint, SpendingAnomaly, Summary
 
 router = APIRouter(prefix="/analytics", tags=["indicadores"])
 
@@ -45,3 +45,16 @@ def top_merchants(date_from: Optional[date] = None, date_to: Optional[date] = No
 @router.get("/monthly", response_model=list[MonthPoint])
 def monthly(months: int = Query(6, ge=1, le=36), db: Session = Depends(get_db)) -> list[MonthPoint]:
     return [MonthPoint(**row) for row in analytics.monthly(db, months)]
+
+
+@router.get("/anomalies", response_model=list[SpendingAnomaly])
+def anomalies(
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    multiplier: float = Query(2.0, ge=1.2, le=10.0),
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db),
+) -> list[SpendingAnomaly]:
+    _check_range(date_from, date_to)
+    rows = analytics.spending_anomalies(db, date_from, date_to, multiplier, limit)
+    return [SpendingAnomaly(**row) for row in rows]

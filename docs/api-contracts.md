@@ -184,6 +184,7 @@ Transferencias internas (recargas de billetera desde el banco, pago de tarjeta p
 | `GET /api/analytics/by-category?type=expense\|income&date_from&date_to` | Distribución por categoría con participación |
 | `GET /api/analytics/top-merchants?date_from&date_to&limit=5` | Comercios con mayor gasto (`limit` 1–20). Solo `expense` con `merchant`, sin duplicados ni categorías "Transferencias internas" / "Transferencias enviadas" |
 | `GET /api/analytics/monthly?months=6` | Serie mensual de ingresos/gastos/neto |
+| `GET /api/analytics/anomalies?date_from&date_to&multiplier=2.0&limit=10` | Gastos individuales cuyo importe supera `multiplier` veces el promedio histórico de su categoría (mínimo 3 registros válidos en la categoría) |
 | `GET /api/budgets?month=YYYY-MM` | Resumen mensual de presupuestos por categoría de gasto (`total_budgeted`, `total_spent` e `items` ordenados por `usage_ratio`) |
 | `PUT /api/budgets` | Crea o actualiza un presupuesto mensual (`{"month": "2026-10", "category": "Alimentación", "limit_amount": 500.0}`) |
 | `DELETE /api/budgets/{budget_id}` | Elimina un presupuesto mensual (`204` o `404`) |
