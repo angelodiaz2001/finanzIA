@@ -1,0 +1,201 @@
+{
+  "generated_at": "2026-11-18T03:41:24",
+  "total_mutants": 24,
+  "killed": 23,
+  "survived": 1,
+  "mutation_score_pct": 95.8,
+  "mutants": [
+    {
+      "id": "M-01",
+      "file": "backend/app/analytics.py",
+      "line": 23,
+      "change": "GtE -> Lt",
+      "original_line": "conds.append(Transaction.occurred_at >= datetime.combine(date_from, time.min))",
+      "status": "killed"
+    },
+    {
+      "id": "M-02",
+      "file": "backend/app/analytics.py",
+      "line": 78,
+      "change": "Eq -> NotEq",
+      "original_line": ".where(Transaction.is_duplicate.is_(False), Transaction.type == tx_type,",
+      "status": "killed"
+    },
+    {
+      "id": "M-03",
+      "file": "backend/app/analytics.py",
+      "line": 127,
+      "change": "Eq -> NotEq",
+      "original_line": "if month == 0:",
+      "status": "killed"
+    },
+    {
+      "id": "M-04",
+      "file": "backend/app/analytics.py",
+      "line": 146,
+      "change": "Sub -> Add",
+      "original_line": "\"net\": round(v[\"income\"] - v[\"expenses\"], 2)}",
+      "status": "killed"
+    },
+    {
+      "id": "M-05",
+      "file": "backend/app/analytics.py",
+      "line": 205,
+      "change": "Gt -> LtE",
+      "original_line": "if n >= 3 and t > 0:",
+      "status": "killed"
+    },
+    {
+      "id": "M-06",
+      "file": "backend/app/analytics.py",
+      "line": 221,
+      "change": "Mult -> Div",
+      "original_line": "if avg > 0 and amt >= avg * multiplier:",
+      "status": "killed"
+    },
+    {
+      "id": "M-07",
+      "file": "backend/app/dedup.py",
+      "line": 29,
+      "change": "Eq -> NotEq",
+      "original_line": "if a_merchant and b_merchant and normalize(a_merchant) == normalize(b_merchant):",
+      "status": "survived"
+    },
+    {
+      "id": "M-08",
+      "file": "backend/app/dedup.py",
+      "line": 44,
+      "change": "NotEq -> Eq",
+      "original_line": ".where(Transaction.source != tx.source)",
+      "status": "killed"
+    },
+    {
+      "id": "M-09",
+      "file": "backend/app/dedup.py",
+      "line": 47,
+      "change": "GtE -> Lt",
+      "original_line": ".where(Transaction.amount >= tx.amount - AMOUNT_TOLERANCE)",
+      "status": "killed"
+    },
+    {
+      "id": "M-10",
+      "file": "backend/app/dedup.py",
+      "line": 48,
+      "change": "LtE -> Gt",
+      "original_line": ".where(Transaction.amount <= tx.amount + AMOUNT_TOLERANCE)",
+      "status": "killed"
+    },
+    {
+      "id": "M-11",
+      "file": "backend/app/dedup.py",
+      "line": 49,
+      "change": "GtE -> Lt",
+      "original_line": ".where(Transaction.occurred_at >= tx.occurred_at - window)",
+      "status": "killed"
+    },
+    {
+      "id": "M-12",
+      "file": "backend/app/dedup.py",
+      "line": 50,
+      "change": "LtE -> Gt",
+      "original_line": ".where(Transaction.occurred_at <= tx.occurred_at + window)",
+      "status": "killed"
+    },
+    {
+      "id": "M-13",
+      "file": "backend/app/categorizer.py",
+      "line": 60,
+      "change": "Add -> Sub",
+      "original_line": "EXPENSE_CATEGORIES = _ordered_unique([c for c, _ in EXPENSE_RULES] + [DEFAULT_EXPENSE])",
+      "status": "killed"
+    },
+    {
+      "id": "M-14",
+      "file": "backend/app/categorizer.py",
+      "line": 61,
+      "change": "Add -> Sub",
+      "original_line": "INCOME_CATEGORIES = _ordered_unique([c for c, _ in INCOME_RULES] + [DEFAULT_INCOME])",
+      "status": "killed"
+    },
+    {
+      "id": "M-15",
+      "file": "backend/app/categorizer.py",
+      "line": 62,
+      "change": "Add -> Sub",
+      "original_line": "ALL_CATEGORIES = _ordered_unique(EXPENSE_CATEGORIES + INCOME_CATEGORIES)",
+      "status": "killed"
+    },
+    {
+      "id": "M-16",
+      "file": "backend/app/categorizer.py",
+      "line": 67,
+      "change": "Add -> Sub",
+      "original_line": "text = normalize(f\"{description or ''} {merchant or ''}\") + \" \"",
+      "status": "killed"
+    },
+    {
+      "id": "M-17",
+      "file": "backend/app/categorizer.py",
+      "line": 68,
+      "change": "Eq -> NotEq",
+      "original_line": "rules = INCOME_RULES if tx_type == \"income\" else EXPENSE_RULES",
+      "status": "killed"
+    },
+    {
+      "id": "M-18",
+      "file": "backend/app/categorizer.py",
+      "line": 73,
+      "change": "Eq -> NotEq",
+      "original_line": "return (DEFAULT_INCOME if tx_type == \"income\" else DEFAULT_EXPENSE), None",
+      "status": "killed"
+    },
+    {
+      "id": "M-19",
+      "file": "backend/app/normalizer.py",
+      "line": 71,
+      "change": "LtE -> Gt",
+      "original_line": "if not math.isfinite(tx.amount) or tx.amount <= 0:",
+      "status": "killed"
+    },
+    {
+      "id": "M-20",
+      "file": "backend/app/normalizer.py",
+      "line": 76,
+      "change": "NotEq -> Eq",
+      "original_line": "if len(tx.currency) != 3:",
+      "status": "killed"
+    },
+    {
+      "id": "M-21",
+      "file": "backend/app/normalizer.py",
+      "line": 95,
+      "change": "Eq -> NotEq",
+      "original_line": "if kind == \"DEBIT\":",
+      "status": "killed"
+    },
+    {
+      "id": "M-22",
+      "file": "backend/app/normalizer.py",
+      "line": 97,
+      "change": "Eq -> NotEq",
+      "original_line": "elif kind == \"CREDIT\":",
+      "status": "killed"
+    },
+    {
+      "id": "M-23",
+      "file": "backend/app/normalizer.py",
+      "line": 120,
+      "change": "Eq -> NotEq",
+      "original_line": "if direction == \"IN\":",
+      "status": "killed"
+    },
+    {
+      "id": "M-24",
+      "file": "backend/app/normalizer.py",
+      "line": 122,
+      "change": "Eq -> NotEq",
+      "original_line": "elif direction == \"OUT\":",
+      "status": "killed"
+    }
+  ]
+}
