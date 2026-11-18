@@ -130,6 +130,19 @@ class MonthPoint(BaseModel):
     net: float
 
 
+class SpendingAnomaly(BaseModel):
+    id: int
+    occurred_at: str
+    description: str
+    merchant: Optional[str] = None
+    category: str
+    source: str
+    currency: str
+    amount: float
+    category_average: float
+    ratio: float
+
+
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
     conversation_id: Optional[str] = None

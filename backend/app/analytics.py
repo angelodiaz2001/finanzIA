@@ -174,3 +174,66 @@ def balances(db: Session) -> list[dict[str, Any]]:
          "balance": float(a.balance), "updated_at": a.updated_at.isoformat()}
         for a in db.execute(select(Account).order_by(Account.source, Account.name)).scalars()
     ]
+
+
+def spending_anomalies(
+    db: Session,
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    multiplier: float = 2.0,
+    limit: int = 10,
+) -> list[dict[str, Any]]:
+    """Detecta gastos individuales cuyo importe supera `multiplier` veces el promedio de su categoría.
+
+    Solo evalúa categorías con al menos 3 gastos válidos históricos para evitar
+    falsos positivos en categorías recién usadas, y excluye duplicados,
+    transferencias internas y envíos a personas.
+    """
+    base_stmt = (
+        select(Transaction.category, func.count(Transaction.id), func.coalesce(func.sum(Transaction.amount), 0.0))
+        .where(
+            Transaction.is_duplicate.is_(False),
+            Transaction.type == "expense",
+            Transaction.category.not_in((INTERNAL_TRANSFERS, SENT_TRANSFERS)),
+        )
+        .group_by(Transaction.category)
+    )
+    averages: dict[str, float] = {}
+    for category, count_rows, total in db.execute(base_stmt):
+        n = int(count_rows or 0)
+        t = float(total or 0.0)
+        if n >= 3 and t > 0:
+            averages[category] = t / n
+
+    if not averages:
+        return []
+
+    cand_stmt = select(Transaction).where(
+        Transaction.is_duplicate.is_(False),
+        Transaction.type == "expense",
+        Transaction.category.in_(tuple(averages.keys())),
+        *_range_conditions(date_from, date_to),
+    )
+    flagged: list[dict[str, Any]] = []
+    for tx in db.execute(cand_stmt).scalars():
+        avg = averages.get(tx.category, 0.0)
+        amt = float(tx.amount)
+        if avg > 0 and amt >= avg * multiplier:
+            ratio = round(amt / avg, 2)
+            flagged.append(
+                {
+                    "id": tx.id,
+                    "occurred_at": tx.occurred_at.isoformat(),
+                    "description": tx.description,
+                    "merchant": tx.merchant,
+                    "category": tx.category,
+                    "source": tx.source,
+                    "currency": tx.currency,
+                    "amount": round(amt, 2),
+                    "category_average": round(avg, 2),
+                    "ratio": ratio,
+                }
+            )
+
+    flagged.sort(key=lambda item: (-item["ratio"], -item["amount"], item["id"]))
+    return flagged[: max(1, min(limit, 50))]

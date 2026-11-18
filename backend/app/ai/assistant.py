@@ -133,6 +133,21 @@ TOOLS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "get_spending_anomalies",
+        "description": "Detecta gastos individuales de un periodo que superan N veces el promedio histórico de su misma categoría.",
+        "strict": True,
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "from_date": {"type": ["string", "null"]},
+                "to_date": {"type": ["string", "null"]},
+                "multiplier": {"type": "number", "description": "Umbral respecto al promedio de la categoría (ej. 2.0)"},
+            },
+            "required": ["from_date", "to_date", "multiplier"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -164,6 +179,11 @@ def execute_tool(db: Session, settings: Settings, name: str, args: dict[str, Any
                   "accounts": analytics.balances(db)}
     elif name == "get_budgets_status":
         result = budgets_service.list_budgets_status(db, args.get("month"), settings.default_currency)
+    elif name == "get_spending_anomalies":
+        mult = float(args.get("multiplier") or 2.0)
+        result = analytics.spending_anomalies(
+            db, _parse_date(args.get("from_date")), _parse_date(args.get("to_date")), multiplier=max(1.2, mult)
+        )
     else:
         raise ValueError(f"herramienta desconocida: {name}")
     return json.dumps(result, ensure_ascii=False, default=str)
