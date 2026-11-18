@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from .. import analytics
 from ..config import Settings, get_settings
 from ..database import get_db
-from ..schemas import CategoryShare, MerchantTotal, MonthPoint, SpendingAnomaly, Summary
+from ..schemas import CategoryShare, MerchantTotal, MonthPoint, RecurringExpense, SpendingAnomaly, Summary
 
 router = APIRouter(prefix="/analytics", tags=["indicadores"])
 
@@ -58,3 +58,11 @@ def anomalies(
     _check_range(date_from, date_to)
     rows = analytics.spending_anomalies(db, date_from, date_to, multiplier, limit)
     return [SpendingAnomaly(**row) for row in rows]
+
+
+@router.get("/recurring", response_model=list[RecurringExpense])
+def recurring(
+    limit: int = Query(8, ge=1, le=30),
+    db: Session = Depends(get_db),
+) -> list[RecurringExpense]:
+    return [RecurringExpense(**row) for row in analytics.recurring_expenses(db, limit)]

@@ -145,6 +145,16 @@ class SpendingAnomaly(BaseModel):
     ratio: float
 
 
+class RecurringExpense(BaseModel):
+    merchant: str
+    category: str
+    months_active: int
+    occurrences: int
+    average_amount: float
+    total_amount: float
+    last_charged_at: str
+
+
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
     conversation_id: Optional[str] = None

@@ -237,3 +237,51 @@ def spending_anomalies(
 
     flagged.sort(key=lambda item: (-item["ratio"], -item["amount"], item["id"]))
     return flagged[: max(1, min(limit, 50))]
+
+
+def recurring_expenses(db: Session, limit: int = 8) -> list[dict[str, Any]]:
+    """Identifica comercios con cobros periódicos en al menos 2 meses calendario distintos."""
+    stmt = select(Transaction).where(
+        Transaction.is_duplicate.is_(False),
+        Transaction.type == "expense",
+        Transaction.merchant.is_not(None),
+        Transaction.category.not_in((INTERNAL_TRANSFERS, SENT_TRANSFERS)),
+    )
+    grouped: dict[str, dict[str, Any]] = {}
+    for tx in db.execute(stmt).scalars():
+        merchant = (tx.merchant or "").strip()
+        if not merchant:
+            continue
+        bucket = grouped.setdefault(
+            merchant,
+            {"months": set(), "amounts": [], "categories": defaultdict(int), "last_dt": tx.occurred_at},
+        )
+        bucket["months"].add(tx.occurred_at.strftime("%Y-%m"))
+        bucket["amounts"].append(float(tx.amount))
+        bucket["categories"][tx.category] += 1
+        if tx.occurred_at > bucket["last_dt"]:
+            bucket["last_dt"] = tx.occurred_at
+
+    items: list[dict[str, Any]] = []
+    for merchant, info in grouped.items():
+        months_active = len(info["months"])
+        if months_active < 2:
+            continue
+        amounts: list[float] = info["amounts"]
+        total = sum(amounts)
+        occurrences = len(amounts)
+        top_cat = max(info["categories"].items(), key=lambda kv: kv[1])[0]
+        items.append(
+            {
+                "merchant": merchant,
+                "category": top_cat,
+                "months_active": months_active,
+                "occurrences": occurrences,
+                "average_amount": round(total / occurrences, 2),
+                "total_amount": round(total, 2),
+                "last_charged_at": info["last_dt"].date().isoformat(),
+            }
+        )
+
+    items.sort(key=lambda r: (-r["months_active"], -r["average_amount"], r["merchant"]))
+    return items[: max(1, min(limit, 30))]

@@ -3,6 +3,7 @@ import { api, formatMoney, SOURCE_LABELS } from "../api.js";
 import CategoryBars from "./CategoryBars.jsx";
 import MonthlyChart from "./MonthlyChart.jsx";
 import TopMerchants from "./TopMerchants.jsx";
+import RecurringAndAlerts from "./RecurringAndAlerts.jsx";
 
 export default function Dashboard({ range, version }) {
   const [summary, setSummary] = useState(null);
@@ -10,6 +11,8 @@ export default function Dashboard({ range, version }) {
   const [monthly, setMonthly] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [merchants, setMerchants] = useState([]);
+  const [anomalies, setAnomalies] = useState([]);
+  const [recurring, setRecurring] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -22,14 +25,18 @@ export default function Dashboard({ range, version }) {
       api.monthly(6),
       api.accounts(),
       api.topMerchants({ ...range, limit: 5 }),
+      api.anomalies({ ...range, limit: 5 }),
+      api.recurring(5),
     ])
-      .then(([s, c, m, a, t]) => {
+      .then(([s, c, m, a, t, an, rec]) => {
         if (cancelled) return;
         setSummary(s);
         setCategories(c);
         setMonthly(m);
         setAccounts(a);
         setMerchants(t);
+        setAnomalies(an);
+        setRecurring(rec);
         setError("");
       })
       .catch((e) => !cancelled && setError(`No se pudieron cargar los indicadores: ${e.message}`))
@@ -99,6 +106,7 @@ export default function Dashboard({ range, version }) {
 
       <div className="grid-2">
         <TopMerchants data={merchants} currency={currency} />
+        <RecurringAndAlerts recurring={recurring} anomalies={anomalies} currency={currency} />
       </div>
 
       <div className="grid-2">

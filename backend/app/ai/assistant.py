@@ -148,6 +148,19 @@ TOOLS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "get_recurring_expenses",
+        "description": "Lista los comercios con cobros recurrentes presentes en al menos dos meses calendario distintos, con su promedio mensual y última fecha de cargo.",
+        "strict": True,
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "limit": {"type": "integer", "description": "Máximo de comercios recurrentes, entre 1 y 30"},
+            },
+            "required": ["limit"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -184,6 +197,8 @@ def execute_tool(db: Session, settings: Settings, name: str, args: dict[str, Any
         result = analytics.spending_anomalies(
             db, _parse_date(args.get("from_date")), _parse_date(args.get("to_date")), multiplier=max(1.2, mult)
         )
+    elif name == "get_recurring_expenses":
+        result = analytics.recurring_expenses(db, limit=int(args.get("limit") or 8))
     else:
         raise ValueError(f"herramienta desconocida: {name}")
     return json.dumps(result, ensure_ascii=False, default=str)
