@@ -6,7 +6,7 @@ const PAGE_SIZE = 25;
 export default function TransactionsTable({ range, version }) {
   const [filters, setFilters] = useState({ source: "", type: "", category: "", q: "", include_duplicates: false });
   const [page, setPage] = useState(1);
-  const [data, setData] = useState({ items: [], total: 0 });
+  const [data, setData] = useState({ items: [], total: 0, filtered_income: 0, filtered_expenses: 0 });
   const [categories, setCategories] = useState({ expense: [], income: [] });
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState(null);
@@ -133,6 +133,19 @@ export default function TransactionsTable({ range, version }) {
       )}
 
       <div className="card">
+        <div className="pager" style={{ marginBottom: 8 }}>
+          <span className="small">
+            Ingresos filtrados: <strong>{formatMoney(data.filtered_income ?? 0)}</strong> · Gastos filtrados:{" "}
+            <strong>{formatMoney(data.filtered_expenses ?? 0)}</strong>
+          </span>
+          <a
+            className="btn ghost small"
+            href={api.exportTransactionsUrl({ ...range, ...filters })}
+            download="transacciones_finanzia.csv"
+          >
+            Exportar CSV
+          </a>
+        </div>
         <div className="table-wrap">
           <table className="table">
             <thead>

@@ -9,7 +9,9 @@ vi.mock("../api.js", async (importOriginal) => {
   return {
     ...actual,
     api: {
+      ...actual.api,
       transactions: vi.fn(),
+      exportTransactionsUrl: vi.fn((p) => `/api/transactions/export?q=${p?.q || ""}`),
       categories: vi.fn(),
       updateCategory: vi.fn(),
       categorize: vi.fn(),
@@ -30,6 +32,8 @@ describe("TransactionsTable y Assistant", () => {
       total: 1,
       page: 1,
       page_size: 25,
+      filtered_income: 1200,
+      filtered_expenses: 45.5,
       items: [
         {
           id: 10,
@@ -72,6 +76,12 @@ describe("TransactionsTable y Assistant", () => {
 
     render(<TransactionsTable range={{}} version={0} />);
     expect(await screen.findByText("Compra en botica")).toBeInTheDocument();
+    expect(screen.getByText(/Ingresos filtrados/i)).toBeInTheDocument();
+    expect(screen.getByText(/Gastos filtrados/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Exportar CSV/i })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/api/transactions/export")
+    );
 
     const catSelect = screen.getByLabelText("Categoría de Compra en botica");
     await user.selectOptions(catSelect, "Salud");

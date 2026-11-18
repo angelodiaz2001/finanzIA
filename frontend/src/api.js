@@ -33,6 +33,7 @@ export const api = {
   topMerchants: (params) => request("/analytics/top-merchants" + qs(params)),
   monthly: (months) => request("/analytics/monthly" + qs({ months })),
   transactions: (params) => request("/transactions" + qs(params)),
+  exportTransactionsUrl: (params) => BASE + "/transactions/export" + qs(params),
   updateCategory: (id, category) =>
     request(`/transactions/${id}/category`, { method: "PATCH", body: JSON.stringify({ category }) }),
   categories: () => request("/categories"),
