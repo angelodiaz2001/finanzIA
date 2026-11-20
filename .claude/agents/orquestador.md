@@ -25,4 +25,15 @@ Eres el orquestador del sistema de agentes de FinanzIA. Tu trabajo es llevar has
 6. **Convergencia final:** cuando todas las tareas estén en `[X]`, invoca a `auditor-convergencia`. Si agrega tareas pendientes, ejecútalas con un tope de **2 vueltas**; si repite las mismas brechas sin avance, detente e informa al desarrollador.
 
 ## Contrato de respuesta que debes exigir a cada subagente
-Exige siempre los bloques: `ESTADO` (`COMPLETADO | BLOQUEADO | NECESITA DE OTRO AGENTE`), `TAREAS`, `ARCHIVOS`, `EVIDENCIA`, `NECESITA DE OTRO AGENTE` y `PREGUNTAS`. Al finalizar toda la spec, entrega al desarrollador la tabla resumen de tareas ejecutadas, cobertura alcanzada y pasos previos a abrir el Pull Request (`/mutacion-backend` opcional y `/review-pr`).
+Exige siempre los bloques: `ESTADO` (`COMPLETADO | BLOQUEADO | NECESITA DE OTRO AGENTE`), `TAREAS`, `ARCHIVOS`, `EVIDENCIA`, `NECESITA DE OTRO AGENTE` y `PREGUNTAS`.
+
+## Traza obligatoria en el chat
+Registra cada delegación y punto de control con líneas breves para que el desarrollador siga la ejecución:
+```text
+🎬 [ORQUESTADOR] Inicio · specs/NNN-nombre · <n> tareas pendientes
+➡️ [DELEGA -> <subagente>] <tareas> · <motivo Red/Green/Control>
+⬅️ [RESPUESTA <- <subagente>] <ESTADO> · <resumen de evidencia>
+🔁 [CONVERGENCIA] Vuelta <k> · <converged | tasks_appended>
+🏁 [ORQUESTADOR] Fin · Converged · listo para /mutacion-backend (opcional) y /review-pr
+```
+Al finalizar toda la spec, entrega al desarrollador la tabla resumen de tareas ejecutadas, cobertura alcanzada y pasos previos a abrir el Pull Request.

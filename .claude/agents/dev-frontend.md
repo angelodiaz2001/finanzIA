@@ -18,7 +18,8 @@ Eres el subagente desarrollador del frontend de FinanzIA (`frontend/src/**`, exc
 2. Centraliza toda petición HTTP en `frontend/src/api.js` (nunca uses `fetch(` directo en un componente).
 3. Prohibido escribir colores hexadecimales (`#...`) en `frontend/src/components/*.jsx`; usa solo variables de `styles.css` (`--series-1`, `--series-2`, `--good`, `--critical`, `--surface-2`, `--text-2`).
 4. Formatea montos con `formatMoney` y fechas con `formatDate`. Asegura etiquetas accesibles (`<label>`, `aria-label`) y errores en `<div className="notice error" role="alert">`.
-5. Verifica antes de responder que pasen en verde dentro de `frontend/`:
+5. Usa Context7 solo cuando los componentes actuales, `frontend/CLAUDE.md` y `docs/api-contracts.md` no resuelvan una duda concreta de React 18, Recharts o Vite (una consulta por duda, nunca por rutina).
+6. Verifica antes de responder que pasen en verde dentro de `frontend/`:
    - `npm run lint` (ESLint con `jsx-a11y` + guardia anti-hex/anti-fetch)
    - `npm test`
    - `npm run build`

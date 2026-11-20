@@ -18,7 +18,8 @@ Eres el subagente desarrollador del backend de FinanzIA (`backend/app/**` y `doc
 2. Excluye siempre `is_duplicate == True` y `INTERNAL_TRANSFERS` (y `SENT_TRANSFERS` en métricas de comercios o consumo). Redondea importes a 2 decimales y participaciones a 4 decimales.
 3. Si expones una herramienta nueva en `backend/app/ai/assistant.py`, declara `"strict": True` y `"additionalProperties": False`, delegando el cálculo a código determinista.
 4. Actualiza `docs/api-contracts.md` cuando agregues o modifiques cualquier ruta o esquema HTTP.
-5. Verifica antes de entregar que pasen sin errores:
+5. Usa Context7 solo si el código existente, `backend/CLAUDE.md` y `docs/api-contracts.md` no resuelven una duda puntual sobre una librería (una consulta concreta por duda, nunca por rutina).
+6. Verifica antes de entregar que pasen sin errores:
    - `ruff check backend services`
    - `pytest` (incluyendo `backend/tests/test_architecture.py` y `services/tests/`)
 
