@@ -14,11 +14,17 @@ estructurales de FinanzIA:
 from __future__ import annotations
 
 import ast
+import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 from backend.app.ai import assistant
 
 BACKEND_APP = Path(__file__).resolve().parents[1] / "app"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+HOOK_SCRIPT = REPO_ROOT / ".claude" / "hooks" / "guard_agent_paths.py"
 
 
 def _imports_of(py_file: Path) -> set[str]:
@@ -84,3 +90,60 @@ def test_only_config_references_dotenv_file():
         if '".env"' in text or "'.env'" in text:
             offenders.append(str(py_file.relative_to(BACKEND_APP)))
     assert not offenders, f"Solo config.py puede cargar .env; revisa: {offenders}"
+
+
+def _run_hook(payload: dict, agent_name: str = "") -> subprocess.CompletedProcess[str]:
+    env = dict(os.environ)
+    if agent_name:
+        env["CLAUDE_AGENT_NAME"] = agent_name
+    else:
+        env.pop("CLAUDE_AGENT_NAME", None)
+    return subprocess.run(
+        [sys.executable, str(HOOK_SCRIPT)],
+        input=json.dumps(payload),
+        text=True,
+        capture_output=True,
+        env=env,
+        check=False,
+    )
+
+
+def test_pretooluse_hook_enforces_structural_tdd_and_protected_files():
+    assert HOOK_SCRIPT.exists()
+    # dev-backend no puede tocar pruebas y test-backend no puede tocar codigo de produccion
+    res_dev_on_test = _run_hook(
+        {"tool_name": "Edit", "tool_input": {"file_path": "backend/tests/test_api.py"}},
+        agent_name="dev-backend",
+    )
+    assert res_dev_on_test.returncode == 2
+
+    res_test_on_app = _run_hook(
+        {"tool_name": "Write", "tool_input": {"file_path": "backend/app/analytics.py"}},
+        agent_name="test-backend",
+    )
+    assert res_test_on_app.returncode == 2
+
+    # Ningun agente puede tocar .env ni services/
+    res_env = _run_hook(
+        {"tool_name": "Edit", "tool_input": {"file_path": ".env"}},
+        agent_name="dev-backend",
+    )
+    assert res_env.returncode == 2
+
+    # Rutas legitimas permitidas
+    res_ok = _run_hook(
+        {"tool_name": "Edit", "tool_input": {"file_path": "backend/app/analytics.py"}},
+        agent_name="dev-backend",
+    )
+    assert res_ok.returncode == 0
+
+
+def test_pretooluse_hook_blocks_git_push_and_pr_merge_in_bash():
+    res_push = _run_hook({"tool_name": "Bash", "tool_input": {"command": "git push origin feat/001"}})
+    assert res_push.returncode == 2
+
+    res_merge = _run_hook({"tool_name": "Bash", "tool_input": {"command": "gh pr merge 6 --merge"}})
+    assert res_merge.returncode == 2
+
+    res_pytest = _run_hook({"tool_name": "Bash", "tool_input": {"command": "python -m pytest -q"}})
+    assert res_pytest.returncode == 0

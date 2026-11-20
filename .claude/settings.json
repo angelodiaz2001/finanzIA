@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_CODE_FORK_SUBAGENT": "0"
+  },
   "permissions": {
     "deny": [
       "Read(./.env)",
@@ -16,7 +19,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|Bash",
         "hooks": [
           {
             "type": "command",
